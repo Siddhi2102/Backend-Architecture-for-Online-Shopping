@@ -35,13 +35,19 @@ const userSchema=new mongoose.Schema({
         required:[true,'phone number is required']
     },
     profilePic:{
-        type:String,
+        public_id:{
+          type:  String
+        } ,   
+        url:{
+           type: String
+        }    
     }
 },{timestamps:true});//provide timings when data is createed
 
 //functions
 //hash func
-userSchema.pre('save',async function(){
+userSchema.pre('save',async function(next){
+    if(!this.isModified("password"))return next();
     this.password=await bcrypt.hash(this.password,10);
 
 })
@@ -58,4 +64,5 @@ userSchema.methods.generateToken=function(){
     return JWT.sign({_id:this._id} , process.env.JWT_SECRET,{expiresIn:"7d"});
 }
 
-export const User=mongoose.model("Users",userSchema);
+export const userModel=mongoose.model("Users",userSchema);
+export default userModel
